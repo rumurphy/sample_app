@@ -1,7 +1,8 @@
 class UsersController < ApplicationController
-  before_action :signed_in_user, only: [:index, :edit, :update, :destroy]
-  before_action :correct_user,   only: [:edit, :update]
-  before_action :admin_user,     only: :destroy
+  before_action :signed_in_user,  only: [:index, :edit, :update, :destroy]
+  before_action :correct_user,    only: [:edit, :update]
+  before_action :admin_user,      only: :destroy
+  before_action :sign_in_not_new, only: [:new, :create]
 
   def index
     @users = User.paginate(page: params[:page])
@@ -30,7 +31,7 @@ class UsersController < ApplicationController
   end
 
   def update
-    if @user.update_attributes(user_params)
+    if @user.update_attributes(user_params) &&
       flash[:success] = "Profile updated"
       redirect_to @user
     else
@@ -66,6 +67,12 @@ class UsersController < ApplicationController
     end
 
     def admin_user
-      redirect_to(root_url) unless current_user.admin?
+      @user = User.find(params[:id])
+      redirect_to(root_url) unless current_user.admin? && !current_user?(@user)
     end
+
+    def sign_in_not_new
+      redirect_to(root_url) if signed_in?
+    end
+
 end
