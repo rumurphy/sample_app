@@ -19,6 +19,7 @@ describe "Static pages" do
   
     describe "for signed-in users" do
       let(:user) { FactoryGirl.create(:user) }
+
       before do
         FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
         FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet")
@@ -31,6 +32,8 @@ describe "Static pages" do
           expect(page).to have_selector("li##{item.id}", text: item.content)
         end
       end
+
+      it { should have_content(user.microposts.count) }      
     end
   end
 

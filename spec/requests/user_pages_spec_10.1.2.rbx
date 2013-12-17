@@ -63,17 +63,31 @@ describe "User Pages" do
 		describe "microposts" do
 			it { should have_content(m1.content) }
 			it { should have_content(m2.content) }
-			it { should have_content(user.microposts.count) }		
+			it { should have_content(user.microposts.count) }
+			
+			describe "pagination" do
+
+			 	before(:all) { 30.times { FactoryGirl.create(:micropost, user: user) } }
+			 	#after(:all) { user.microposts.delete_all }
+			 	after(:all) { Micropost.delete_all }
+
+			 	it { should have_selector('div.pagination') }
+
+			 	it "should list each micropost" do
+			 		user.microposts.paginate(page: 1).each do |micropost|
+			 			expect(page).to have_selector('li', text: micropost.content)
+			 		end
+			 	end
+			end
+
+## Just for reference			
+#    @users = User.paginate(page: params[:page])
+
+#		@user = User.find(params[:id])
+#    @microposts = @user.microposts.paginate(page: params[:page])
+
 		end
 
-		describe "delete links" do
-			let(:another_user) { FactoryGirl.create(:user) }
-			let!(:mp1) { FactoryGirl.create(:micropost, user: another_user, content: "Bar") }
-
-			before { visit user_path(another_user) }
-
-			it { should_not have_link('delete') }
-		end
 	end
 
 	describe "signup page" do
